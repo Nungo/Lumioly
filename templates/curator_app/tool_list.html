@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }} - AI Curator{% endblock %}
+{% block content %}
+    <h2>{{ page_title }}</h2>
+    {% for tool in ai_tools %}
+        <article>
+            <header><a href="{% url 'curator_app:tool_detail' tool.pk %}"><strong>{{ tool.name }}</strong></a></header>
+            <p>{{ tool.description }}</p>
+        </article>
+    {% empty %}
+        <p>No AI tools found.</p>
+    {% endfor %}
+{% endblock %}

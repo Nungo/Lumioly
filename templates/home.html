@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Home - AI Curator{% endblock %}
+
+{% block content %}
+    <h2>Welcome to the AI Curator!</h2>
+    <p>Your curated hub for the latest news and tools in the world of Artificial Intelligence.</p>
+
+    <div class="grid">
+        <section>
+            <h3>Latest News</h3>
+            {% for item in latest_news %}
+                <article>
+                    <header><a href="{{ item.link }}" target="_blank"><strong>{{ item.title }}</strong></a></header>
+                    <p>{{ item.summary|truncatewords:30 }}</p>
+                </article>
+            {% empty %}
+                <p>No news items found. Go add some in the admin panel!</p>
+            {% endfor %}
+            <a href="{% url 'curator_app:news_list' %}" role="button" class="secondary">View All News</a>
+        </section>
+
+        <section>
+            <h3>Recently Added Tools</h3>
+            {% for tool in latest_tools %}
+                <article>
+                     <header><a href="{% url 'curator_app:tool_detail' tool.pk %}"><strong>{{ tool.name }}</strong></a></header>
+                     <p>{{ tool.description|truncatewords:20 }}</p>
+                </article>
+            {% empty %}
+                <p>No tools found. Go add some in the admin panel!</p>
+            {% endfor %}
+            <a href="{% url 'curator_app:tool_list' %}" role="button" class="secondary">View All Tools</a>
+        </section>
+    </div>
+{% endblock %}

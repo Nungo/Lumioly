@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI Curator{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <style>
+        :root { --pico-font-size: 100%; }
+        body { padding: 2rem; max-width: 960px; margin: auto; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .navbar nav a { margin-left: 1rem; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        .ai-response {
+            border: 1px solid var(--pico-primary-border);
+            border-radius: var(--pico-border-radius);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            background-color: var(--pico-muted-background-color);
+            white-space: pre-wrap; /* This preserves whitespace and newlines from the AI response */
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <h1 style="margin: 0;"><a href="{% url 'home' %}" style="text-decoration: none;">🤖 AI Curator</a></h1>
+        <nav>
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'curator_app:news_list' %}">News</a>
+            <a href="{% url 'curator_app:tool_list' %}">Tools</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer style="margin-top: 4rem; text-align: center; color: var(--pico-muted-color);">
+        <p>AI Curator - Perplexity/DevPost Hackathon May 2025</p>
+    </footer>
+</body>
+</html>
