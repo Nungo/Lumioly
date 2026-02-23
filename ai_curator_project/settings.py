@@ -22,6 +22,10 @@ ALLOWED_HOSTS = [
     '.up.railway.app',
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.railway.app',
+    'https://*.up.railway.app',
+]
 # Allow any custom domain added in Railway
 RAILWAY_STATIC_URL = os.environ.get('RAILWAY_STATIC_URL')
 if RAILWAY_STATIC_URL:
