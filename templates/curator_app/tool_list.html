@@ -1,761 +1,194 @@
 {% extends "base.html" %}
-{% block title %}{{ page_title }} - AI Curator{% endblock %}
-{% block content %}
+{% block title %}Tools{% endblock %}
 
-<!-- Hero Section -->
-<section style="padding: 3rem 0; text-align: center; position: relative;">
-    <!-- Floating background elements -->
-    <div style="position: absolute; top: 10%; left: 15%; width: 150px; height: 150px; background: radial-gradient(circle, rgba(191, 0, 255, 0.3), transparent); border-radius: 50%; filter: blur(50px); animation: float 18s ease-in-out infinite;"></div>
-    <div style="position: absolute; top: 20%; right: 20%; width: 120px; height: 120px; background: radial-gradient(circle, rgba(0, 212, 255, 0.3), transparent); border-radius: 50%; filter: blur(40px); animation: float 22s ease-in-out infinite reverse;"></div>
-    
-    <div style="position: relative; z-index: 10;">
-        <h1 style="font-size: 3rem; margin-bottom: 1rem; background: linear-gradient(45deg, var(--neon-purple), var(--light-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-            🛠️ {{ page_title }}
-        </h1>
-        
-        <p style="font-size: 1.2rem; color: var(--text-muted); max-width: 600px; margin: 0 auto 2rem; line-height: 1.6;">
-            Discover cutting-edge AI tools and get instant explanations powered by Gemini AI
-        </p>
-
-        <!-- Tools Search & Filter Bar -->
-        <div class="tools-filter-container">
-            <form method="GET" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; justify-content: center;">
-                <!-- Search Input -->
-                <div class="search-input-wrapper">
-                    <svg class="search-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <path d="M21 21l-4.35-4.35"></path>
-                    </svg>
-                    <input 
-                        type="text" 
-                        name="search"
-                        placeholder="Search AI tools..."
-                        value="{{ request.GET.search }}"
-                        class="tools-search-input"
-                    />
-                </div>
-
-                <!-- Category Filter -->
-                <select name="category" class="tools-filter-select">
-                    <option value="">All Categories</option>
-                    <option value="nlp" {% if request.GET.category == 'nlp' %}selected{% endif %}>🗣️ NLP</option>
-                    <option value="vision" {% if request.GET.category == 'vision' %}selected{% endif %}>👁️ Computer Vision</option>
-                    <option value="ml" {% if request.GET.category == 'ml' %}selected{% endif %}>🧠 Machine Learning</option>
-                    <option value="audio" {% if request.GET.category == 'audio' %}selected{% endif %}>🎵 Audio AI</option>
-                    <option value="code" {% if request.GET.category == 'code' %}selected{% endif %}>💻 Code AI</option>
-                    <option value="image" {% if request.GET.category == 'image' %}selected{% endif %}>🎨 Image Generation</option>
-                </select>
-
-                <!-- Sort Filter -->
-                <select name="sort" class="tools-filter-select">
-                    <option value="name" {% if request.GET.sort == 'name' %}selected{% endif %}>A-Z</option>
-                    <option value="-name" {% if request.GET.sort == '-name' %}selected{% endif %}>Z-A</option>
-                    <option value="popular" {% if request.GET.sort == 'popular' %}selected{% endif %}>Most Popular</option>
-                    <option value="recent" {% if request.GET.sort == 'recent' %}selected{% endif %}>Recently Added</option>
-                </select>
-
-                <!-- Filter Button -->
-                <button type="submit" class="filter-btn">
-                    🔍 Filter
-                </button>
-
-                <!-- Clear Filters -->
-                {% if request.GET.search or request.GET.category or request.GET.sort != 'name' %}
-                <a href="{% url 'curator_app:tool_list' %}" class="clear-filters-btn">
-                    ✕ Clear
-                </a>
-                {% endif %}
-            </form>
-        </div>
-    </div>
-</section>
-
-<!-- Tools Results Summary -->
-{% if ai_tools %}
-<div style="text-align: center; margin-bottom: 2rem;">
-    <div class="results-summary">
-        <span style="color: var(--neon-purple); font-weight: 600;">{{ ai_tools|length }}</span>
-        <span style="color: var(--text-muted);">
-            {% if request.GET.search %}
-                AI tools found for "{{ request.GET.search }}"
-            {% else %}
-                cutting-edge AI tools available
-            {% endif %}
-        </span>
-    </div>
-</div>
-{% endif %}
-
-<!-- Category Quick Filter Chips -->
-<div style="text-align: center; margin-bottom: 3rem;">
-    <div class="category-chips">
-        <a href="?category=nlp" class="category-chip {% if request.GET.category == 'nlp' %}active{% endif %}">
-            🗣️ NLP
-        </a>
-        <a href="?category=vision" class="category-chip {% if request.GET.category == 'vision' %}active{% endif %}">
-            👁️ Vision
-        </a>
-        <a href="?category=ml" class="category-chip {% if request.GET.category == 'ml' %}active{% endif %}">
-            🧠 ML
-        </a>
-        <a href="?category=audio" class="category-chip {% if request.GET.category == 'audio' %}active{% endif %}">
-            🎵 Audio
-        </a>
-        <a href="?category=code" class="category-chip {% if request.GET.category == 'code' %}active{% endif %}">
-            💻 Code
-        </a>
-        <a href="?category=image" class="category-chip {% if request.GET.category == 'image' %}active{% endif %}">
-            🎨 Image
-        </a>
-    </div>
-</div>
-
-<!-- Tools Grid -->
-<section style="margin-bottom: 4rem;">
-    {% if ai_tools %}
-        <div class="tools-grid">
-            {% for tool in ai_tools %}
-                <article class="tool-card" data-category="{{ tool.category|default:'general' }}">
-                    <!-- Tool Header -->
-                    <div class="tool-header">
-                        <div class="tool-meta">
-                            <div class="tool-icon">
-                                🤖
-                            </div>
-                            <span class="tool-badge">
-                                {% if tool.category %}
-                                    {{ tool.category|title }}
-                                {% else %}
-                                    AI Tool
-                                {% endif %}
-                            </span>
-                        </div>
-                        <div class="tool-actions">
-                            <button class="action-btn" title="Share Tool" onclick="shareTool('{{ tool.name }}', '{% url 'curator_app:tool_detail' tool.pk %}')">
-                                🔗
-                            </button>
-                            <button class="action-btn" title="Bookmark" onclick="bookmarkTool({{ tool.id }})">
-                                ⭐
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Tool Content -->
-                    <h3 class="tool-title">
-                        <a href="{% url 'curator_app:tool_detail' tool.pk %}">
-                            {{ tool.name }}
-                        </a>
-                    </h3>
-                    
-                    <p class="tool-description">
-                        {{ tool.description|truncatewords:20 }}
-                    </p>
-
-                    <!-- Tool Tags -->
-                    <div class="tool-tags">
-                        {% if tool.category %}
-                            <span class="tool-tag">{{ tool.category|title }}</span>
-                        {% endif %}
-                        <span class="tool-tag">🔥 Popular</span>
-                        <span class="tool-tag">✨ Featured</span>
-                    </div>
-
-                    <!-- Tool Footer -->
-                    <div class="tool-footer">
-                        <a href="{% url 'curator_app:tool_detail' tool.pk %}" class="ask-ai-btn">
-                            <span class="btn-text">🤖 Ask AI</span>
-                            <span class="btn-loading" style="display: none;">
-                                <svg class="spinner" width="16" height="16" viewBox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"></circle>
-                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="31.416" stroke-dashoffset="31.416" opacity="0.75">
-                                        <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416" repeatCount="indefinite"/>
-                                        <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416" repeatCount="indefinite"/>
-                                    </animate>
-                                </svg>
-                                Thinking...
-                            </span>
-                        </a>
-                        
-                        <a href="{% url 'curator_app:tool_detail' tool.pk %}" class="learn-more-btn" title="Learn More">
-                            📖
-                        </a>
-                    </div>
-
-                    <!-- Hover Glow Effect -->
-                    <div class="card-glow"></div>
-                </article>
-            {% endfor %}
-        </div>
-
-        <!-- Load More Button -->
-        <div style="text-align: center; margin-top: 3rem;">
-            <button class="load-more-btn" onclick="loadMoreTools()">
-                <span class="load-text">🛠️ Load More Tools</span>
-                <span class="loading-text" style="display: none;">
-                    <svg class="spinner" width="20" height="20" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"></circle>
-                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="31.416" stroke-dashoffset="31.416" opacity="0.75">
-                            <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416" repeatCount="indefinite"/>
-                            <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416" repeatCount="indefinite"/>
-                        </animate>
-                    </circle>
-                </svg>
-                Loading...
-                </span>
-            </button>
-        </div>
-
-    {% else %}
-        <!-- Empty State -->
-        <div class="empty-state">
-            <div class="empty-icon">🛠️</div>
-            <h3>No AI Tools Found</h3>
-            <p>
-                {% if request.GET.search %}
-                    No tools match your search "{{ request.GET.search }}". Try different keywords or browse all tools.
-                {% else %}
-                    No AI tools found.
-                {% endif %}
-            </p>
-            {% if request.GET.search %}
-                <a href="{% url 'curator_app:tool_list' %}" class="btn-futuristic">
-                    Browse All Tools
-                </a>
-            {% endif %}
-        </div>
-    {% endif %}
-</section>
-
+{% block extra_styles %}
 <style>
-    /* Float animation */
-    @keyframes float {
-        0%, 100% { transform: translate(0px, 0px) rotate(0deg); }
-        33% { transform: translate(30px, -30px) rotate(120deg); }
-        66% { transform: translate(-20px, 20px) rotate(240deg); }
-    }
+  .page-hero { padding: 64px 0 48px; border-bottom: 1px solid var(--border); margin-bottom: 48px; }
+  .page-hero h1 { font-size: clamp(40px, 5vw, 64px); font-weight: 300; margin-bottom: 12px; }
+  .page-hero p { color: var(--text-muted); font-size: 15px; font-weight: 300; max-width: 480px; line-height: 1.7; }
 
-    /* Tools Filter Styles */
-    .tools-filter-container {
-        max-width: 900px;
-        margin: 0 auto 3rem;
-        padding: 2rem;
-        background: var(--glass-bg);
-        backdrop-filter: blur(20px);
-        border: 1px solid var(--glass-border);
-        border-radius: 25px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
+  /* ── Filter bar ── */
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
 
-    .search-input-wrapper {
-        position: relative;
-        min-width: 300px;
-        flex: 1;
-    }
+  .search-wrap {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .search-wrap .search-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--text-dim);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+  }
+  .search-wrap input { padding-left: 36px; }
 
-    .search-input-wrapper .search-icon {
-        position: absolute;
-        left: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-muted);
-        z-index: 10;
-    }
+  .filter-selects {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
 
-    .tools-search-input {
-        width: 100%;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid var(--glass-border);
-        border-radius: 20px;
-        padding: 12px 20px 12px 45px;
-        color: var(--text-light);
-        font-family: 'Rajdhani', sans-serif;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-    }
+  .filter-selects select {
+    width: auto;
+    min-width: 140px;
+    cursor: pointer;
+  }
 
-    .tools-search-input:focus {
-        outline: none;
-        border-color: var(--neon-purple);
-        box-shadow: 0 0 20px rgba(191, 0, 255, 0.3);
-    }
+  .filter-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
 
-    .tools-search-input::placeholder {
-        color: var(--text-muted);
-    }
+  /* ── Category pills ── */
+  .category-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 36px; }
+  .pill {
+    padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 500;
+    border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; text-decoration: none;
+    transition: all var(--transition); display: inline-flex; align-items: center; gap: 5px; letter-spacing: 0.04em;
+  }
+  .pill:hover, .pill.active { border-color: var(--border-hover); color: var(--gold); background: var(--gold-dim); }
 
-    .tools-filter-select {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid var(--glass-border);
-        border-radius: 15px;
-        padding: 12px 16px;
-        color: var(--text-light);
-        font-family: 'Rajdhani', sans-serif;
-        font-size: 0.95rem;
-        min-width: 160px;
-        transition: all 0.3s ease;
-    }
+  /* ── Count tag ── */
+  .count-tag { display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; background: var(--gold-dim); border: 1px solid rgba(201,169,110,0.2); border-radius: 100px; font-size: 12px; color: var(--gold); margin-bottom: 32px; }
 
-    .tools-filter-select:focus {
-        outline: none;
-        border-color: var(--light-purple);
-        box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
-    }
+  /* ── Tools grid ── */
+  .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding-bottom: 80px; }
+  @media (max-width: 600px) { .tools-grid { grid-template-columns: 1fr; } }
 
-    .tools-filter-select option {
-        background: var(--primary-blue);
-        color: var(--text-light);
-    }
+  .tool-card { padding: 26px; display: flex; flex-direction: column; }
+  .tool-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 4px; }
+  .tool-card-name { font-family: var(--font-serif); font-size: 22px; font-weight: 400; color: var(--text); line-height: 1.2; margin-bottom: 10px; }
+  .tool-card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.65; flex: 1; margin-bottom: 20px; }
+  .tool-card-footer { display: flex; gap: 8px; padding-top: 14px; border-top: 1px solid var(--border); margin-top: auto; }
+  .tool-card-footer .btn { flex: 1; justify-content: center; }
+  .tool-card-footer .btn-icon { flex: 0; padding: 10px 14px; }
 
-    .filter-btn {
-        background: linear-gradient(45deg, var(--neon-purple), var(--light-purple));
-        border: none;
-        border-radius: 15px;
-        padding: 12px 20px;
-        color: white;
-        font-family: 'Orbitron', monospace;
-        font-weight: 600;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        white-space: nowrap;
-    }
+  /* Category colors */
+  .cat-nlp  { background:rgba(201,169,110,0.12);color:var(--gold);border:1px solid rgba(201,169,110,0.25); }
+  .cat-img  { background:rgba(20,184,166,0.1);color:#2dd4bf;border:1px solid rgba(20,184,166,0.2); }
+  .cat-code { background:rgba(59,130,246,0.1);color:#60a5fa;border:1px solid rgba(59,130,246,0.2); }
+  .cat-ml   { background:rgba(139,92,246,0.1);color:#a78bfa;border:1px solid rgba(139,92,246,0.2); }
+  .cat-vis  { background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,0.2); }
+  .cat-aud  { background:rgba(244,63,94,0.1);color:#fb7185;border:1px solid rgba(244,63,94,0.2); }
 
-    .filter-btn:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 20px var(--neon-purple);
-    }
-
-    .clear-filters-btn {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid var(--glass-border);
-        border-radius: 15px;
-        padding: 12px 16px;
-        color: var(--text-muted);
-        text-decoration: none;
-        font-family: 'Rajdhani', sans-serif;
-        font-size: 0.9rem;
-        transition: all 0.3s ease;
-        white-space: nowrap;
-    }
-
-    .clear-filters-btn:hover {
-        background: rgba(255, 100, 100, 0.2);
-        color: #ff6b6b;
-        border-color: #ff6b6b;
-    }
-
-    /* Results Summary */
-    .results-summary {
-        background: var(--glass-bg);
-        backdrop-filter: blur(15px);
-        border: 1px solid var(--glass-border);
-        border-radius: 20px;
-        padding: 1rem 2rem;
-        display: inline-block;
-        font-family: 'Rajdhani', sans-serif;
-        font-size: 1.1rem;
-    }
-
-    /* Category Chips */
-    .category-chips {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        flex-wrap: wrap;
-        max-width: 800px;
-        margin: 0 auto;
-    }
-
-    .category-chip {
-        background: var(--glass-bg);
-        backdrop-filter: blur(10px);
-        border: 1px solid var(--glass-border);
-        border-radius: 20px;
-        padding: 0.75rem 1.5rem;
-        color: var(--text-muted);
-        text-decoration: none;
-        font-family: 'Rajdhani', sans-serif;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        font-size: 0.95rem;
-    }
-
-    .category-chip:hover, .category-chip.active {
-        background: linear-gradient(45deg, var(--neon-purple), var(--light-purple));
-        color: white;
-        transform: translateY(-3px);
-        box-shadow: 0 10px 25px rgba(191, 0, 255, 0.3);
-        border-color: transparent;
-    }
-
-    /* Tools Grid */
-    .tools-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        gap: 2rem;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .tool-card {
-        background: var(--glass-bg);
-        backdrop-filter: blur(15px);
-        border: 1px solid var(--glass-border);
-        border-radius: 20px;
-        padding: 1.5rem;
-        transition: all 0.4s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .tool-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, var(--neon-purple), var(--neon-cyan));
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .tool-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 
-            0 20px 40px rgba(0, 0, 0, 0.3),
-            0 0 30px rgba(191, 0, 255, 0.2);
-        border-color: var(--neon-purple);
-    }
-
-    .tool-card:hover::before {
-        opacity: 1;
-    }
-
-    .tool-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 1rem;
-    }
-
-    .tool-meta {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .tool-icon {
-        width: 3rem;
-        height: 3rem;
-        border-radius: 50%;
-        background: linear-gradient(45deg, var(--neon-purple), var(--neon-cyan));
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        box-shadow: 0 0 20px rgba(191, 0, 255, 0.5);
-    }
-
-    .tool-badge {
-        background: linear-gradient(45deg, var(--neon-purple), var(--light-purple));
-        color: white;
-        padding: 0.25rem 0.75rem;
-        border-radius: 12px;
-        font-size: 0.8rem;
-        font-weight: bold;
-    }
-
-    .tool-actions {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .action-btn {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid var(--glass-border);
-        border-radius: 8px;
-        padding: 0.5rem;
-        color: var(--text-muted);
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-size: 1rem;
-    }
-
-    .action-btn:hover {
-        background: var(--neon-purple);
-        color: white;
-        transform: scale(1.1);
-    }
-
-    .tool-title {
-        font-size: 1.4rem;
-        font-weight: bold;
-        margin-bottom: 1rem;
-        line-height: 1.4;
-    }
-
-    .tool-title a {
-        color: var(--text-light);
-        text-decoration: none;
-        transition: all 0.3s ease;
-    }
-
-    .tool-title a:hover {
-        color: var(--neon-purple);
-        text-shadow: 0 0 10px var(--neon-purple);
-    }
-
-    .tool-description {
-        color: var(--text-muted);
-        line-height: 1.6;
-        margin-bottom: 1.5rem;
-        font-size: 1rem;
-    }
-
-    .tool-tags {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        margin-bottom: 1.5rem;
-    }
-
-    .tool-tag {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid var(--glass-border);
-        border-radius: 10px;
-        padding: 0.25rem 0.5rem;
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        font-family: 'Rajdhani', sans-serif;
-    }
-
-    .tool-footer {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-    }
-
-    .ask-ai-btn {
-        flex: 1;
-        background: linear-gradient(45deg, var(--neon-purple), var(--light-purple));
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 20px;
-        text-decoration: none;
-        font-family: 'Orbitron', monospace;
-        font-weight: 600;
-        font-size: 0.9rem;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        text-align: center;
-    }
-
-    .ask-ai-btn:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 25px var(--neon-purple);
-        text-shadow: none;
-    }
-
-    .learn-more-btn {
-        background: var(--glass-bg);
-        border: 1px solid var(--glass-border);
-        border-radius: 12px;
-        padding: 0.75rem 1rem;
-        color: var(--neon-cyan);
-        text-decoration: none;
-        transition: all 0.3s ease;
-        font-size: 1.2rem;
-    }
-
-    .learn-more-btn:hover {
-        background: var(--neon-cyan);
-        color: var(--primary-dark);
-        transform: scale(1.1);
-        box-shadow: 0 0 15px var(--neon-cyan);
-    }
-
-    /* Load More Button */
-    .load-more-btn {
-        background: var(--glass-bg);
-        backdrop-filter: blur(15px);
-        border: 2px solid var(--glass-border);
-        border-radius: 25px;
-        padding: 1rem 2rem;
-        color: var(--text-light);
-        font-family: 'Orbitron', monospace;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .load-more-btn:hover {
-        border-color: var(--neon-purple);
-        box-shadow: 0 0 25px rgba(191, 0, 255, 0.3);
-        transform: translateY(-2px);
-    }
-
-    .spinner {
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-
-    /* Empty State */
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        background: var(--glass-bg);
-        backdrop-filter: blur(15px);
-        border: 1px solid var(--glass-border);
-        border-radius: 25px;
-        max-width: 600px;
-        margin: 0 auto;
-    }
-
-    .empty-icon {
-        font-size: 4rem;
-        margin-bottom: 1.5rem;
-        opacity: 0.7;
-    }
-
-    .empty-state h3 {
-        color: var(--text-light);
-        margin-bottom: 1rem;
-        font-family: 'Orbitron', monospace;
-    }
-
-    .empty-state p {
-        color: var(--text-muted);
-        line-height: 1.6;
-        margin-bottom: 2rem;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-        .tools-filter-container form {
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .search-input-wrapper {
-            min-width: 100%;
-        }
-
-        .category-chips {
-            gap: 0.5rem;
-        }
-
-        .category-chip {
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
-        }
-
-        .tools-grid {
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-        }
-
-        .tool-card {
-            padding: 1.25rem;
-        }
-
-        .tool-meta {
-            flex-direction: column;
-            gap: 0.5rem;
-            align-items: flex-start;
-        }
-
-        .tool-footer {
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .ask-ai-btn {
-            width: 100%;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-        }
-    }
+  @media (max-width: 768px) {
+    .filter-bar { flex-direction: column; align-items: stretch; }
+    .filter-selects { width: 100%; }
+    .filter-selects select { flex: 1; }
+    .filter-actions { width: 100%; }
+    .filter-actions .btn { flex: 1; justify-content: center; }
+  }
 </style>
+{% endblock %}
 
-<script>
-    // Share tool function
-    function shareTool(name, url) {
-        const fullUrl = window.location.origin + url;
-        if (navigator.share) {
-            navigator.share({
-                title: name + ' - AI Curator',
-                url: fullUrl
-            });
-        } else {
-            // Fallback: copy to clipboard
-            navigator.clipboard.writeText(fullUrl).then(() => {
-                alert('Tool link copied to clipboard!');
-            });
-        }
-    }
+{% block content %}
+<div class="page-hero">
+  <div class="section-label" style="margin-bottom:20px;">
+    <i data-lucide="cpu" class="icon-sm"></i>
+    AI Directory
+  </div>
+  <h1>AI <em style="font-style:italic;color:var(--gold);">Tools</em></h1>
+  <p>Discover cutting-edge AI tools with instant explanations powered by Gemini.</p>
+</div>
 
-    // Bookmark tool function
-    function bookmarkTool(toolId) {
-        // Add bookmark functionality here
-        console.log('Bookmarked tool:', toolId);
-        alert('Tool bookmarked! (Feature coming soon)');
-    }
+<form method="GET" action="/tools/">
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <span class="search-icon"><i data-lucide="search" class="icon-sm"></i></span>
+      <input type="search" name="search" value="{{ search_query }}" placeholder="Search tools..." />
+    </div>
+    <div class="filter-selects">
+      <select name="category">
+        <option value="">All Categories</option>
+        <option value="nlp"              {% if category == 'nlp' %}selected{% endif %}>NLP</option>
+        <option value="image"            {% if category == 'image' %}selected{% endif %}>Image</option>
+        <option value="code"             {% if category == 'code' %}selected{% endif %}>Code</option>
+        <option value="machine_learning" {% if category == 'machine_learning' %}selected{% endif %}>Machine Learning</option>
+        <option value="vision"           {% if category == 'vision' %}selected{% endif %}>Vision</option>
+        <option value="audio"            {% if category == 'audio' %}selected{% endif %}>Audio</option>
+      </select>
+      <select name="sort">
+        <option value="name"    {% if sort_order == 'name' %}selected{% endif %}>A → Z</option>
+        <option value="-name"   {% if sort_order == '-name' %}selected{% endif %}>Z → A</option>
+        <option value="recent"  {% if sort_order == 'recent' %}selected{% endif %}>Newest</option>
+        <option value="popular" {% if sort_order == 'popular' %}selected{% endif %}>Popular</option>
+      </select>
+    </div>
+    <div class="filter-actions">
+      <button type="submit" class="btn btn-gold">
+        <i data-lucide="filter" class="icon-sm"></i>
+        Filter
+      </button>
+      {% if search_query or category %}
+      <a href="/tools/" class="btn btn-ghost">
+        <i data-lucide="x" class="icon-sm"></i>
+        Clear
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</form>
 
-    // Load more tools function
-    function loadMoreTools() {
-        const btn = document.querySelector('.load-more-btn');
-        const loadText = btn.querySelector('.load-text');
-        const loadingText = btn.querySelector('.loading-text');
-        
-        loadText.style.display = 'none';
-        loadingText.style.display = 'flex';
-        btn.disabled = true;
-        
-        // Simulate loading - replace with actual AJAX call
-        setTimeout(() => {
-            loadText.style.display = 'flex';
-            loadingText.style.display = 'none';
-            btn.disabled = false;
-            alert('Load more functionality coming soon!');
-        }, 2000);
-    }
+<div class="category-pills">
+  <a href="/tools/" class="pill {% if not category %}active{% endif %}"><i data-lucide="layout-grid" class="icon-sm"></i> All</a>
+  <a href="/tools/?category=nlp" class="pill {% if category == 'nlp' %}active{% endif %}"><i data-lucide="type" class="icon-sm"></i> NLP</a>
+  <a href="/tools/?category=image" class="pill {% if category == 'image' %}active{% endif %}"><i data-lucide="image" class="icon-sm"></i> Image</a>
+  <a href="/tools/?category=code" class="pill {% if category == 'code' %}active{% endif %}"><i data-lucide="code-2" class="icon-sm"></i> Code</a>
+  <a href="/tools/?category=machine_learning" class="pill {% if category == 'machine_learning' %}active{% endif %}"><i data-lucide="brain" class="icon-sm"></i> ML</a>
+  <a href="/tools/?category=vision" class="pill {% if category == 'vision' %}active{% endif %}"><i data-lucide="eye" class="icon-sm"></i> Vision</a>
+  <a href="/tools/?category=audio" class="pill {% if category == 'audio' %}active{% endif %}"><i data-lucide="music" class="icon-sm"></i> Audio</a>
+</div>
 
-    // Auto-submit form on filter change
-    document.querySelectorAll('.tools-filter-select').forEach(select => {
-        select.addEventListener('change', function() {
-            this.form.submit();
-        });
-    });
+<div class="count-tag">
+  <i data-lucide="layers" class="icon-sm"></i>
+  {{ ai_tools|length }} tool{{ ai_tools|length|pluralize }} available
+</div>
 
-    // Add click effects to Ask AI buttons
-    document.querySelectorAll('.ask-ai-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            const btnText = this.querySelector('.btn-text');
-            const btnLoading = this.querySelector('.btn-loading');
-            
-            btnText.style.display = 'none';
-            btnLoading.style.display = 'flex';
-            
-            // Reset after a short delay (remove this in production)
-            setTimeout(() => {
-                btnText.style.display = 'flex';
-                btnLoading.style.display = 'none';
-            }, 2000);
-        });
-    });
-</script>
-
+<div class="tools-grid">
+  {% for tool in ai_tools %}
+  <div class="card tool-card">
+    <div class="tool-card-top">
+      {% if tool.category %}
+      <span class="badge {% if tool.category == 'nlp' %}cat-nlp{% elif tool.category == 'image' %}cat-img{% elif tool.category == 'code' %}cat-code{% elif tool.category == 'machine_learning' %}cat-ml{% elif tool.category == 'vision' %}cat-vis{% elif tool.category == 'audio' %}cat-aud{% else %}badge-surface{% endif %}" style="margin-bottom:8px;">
+        {{ tool.get_category_display|default:tool.category }}
+      </span>
+      {% endif %}
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+        {% if tool.is_featured %}<span class="badge badge-gold"><i data-lucide="star" class="icon-sm"></i> Featured</span>{% endif %}
+        {% if tool.is_popular %}<span class="badge badge-surface"><i data-lucide="flame" class="icon-sm"></i> Popular</span>{% endif %}
+      </div>
+    </div>
+    <h3 class="tool-card-name">{{ tool.name }}</h3>
+    <p class="tool-card-desc">{{ tool.description|truncatechars:120 }}</p>
+    <div class="tool-card-footer">
+      <a href="/tools/{{ tool.pk }}/" class="btn btn-gold">
+        <i data-lucide="sparkles" class="icon-sm"></i> Ask AI
+      </a>
+      {% if tool.url %}
+      <a href="{{ tool.url }}" target="_blank" class="btn btn-ghost btn-icon">
+        <i data-lucide="external-link" class="icon-sm"></i>
+      </a>
+      {% endif %}
+    </div>
+  </div>
+  {% empty %}
+  <div style="grid-column:1/-1;text-align:center;padding:80px 0;color:var(--text-muted);">
+    <i data-lucide="package-open" class="icon-xl" style="color:var(--text-dim);margin-bottom:16px;"></i>
+    <p>No tools found{% if search_query %} for "{{ search_query }}"{% endif %}.</p>
+    {% if search_query or category %}<a href="/tools/" style="color:var(--gold);font-size:13px;margin-top:12px;display:inline-block;">Clear filters</a>{% endif %}
+  </div>
+  {% endfor %}
+</div>
 {% endblock %}
