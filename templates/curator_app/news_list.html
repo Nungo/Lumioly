@@ -135,7 +135,7 @@
 
 <div class="news-grid">
   {% for item in news_items %}
-  <div class="card news-card" onclick="window.open('{{ item.link }}', '_blank')">
+  <div class="card news-card" onclick="goToArticle('{{ item.title|escapejs }}', '{{ item.summary|escapejs }}', '{{ item.source.name|escapejs }}', '{{ item.link|escapejs }}', '{{ item.published_date|timesince|escapejs }}')">
     <div class="news-card-meta">
       <span class="badge
         {% if item.source.name == 'TechCrunch' %}src-tc
@@ -152,9 +152,9 @@
     <h3 class="news-card-title">{{ item.title }}</h3>
     <p class="news-card-summary">{{ item.summary }}</p>
     <div class="news-card-footer">
-      <a href="{{ item.link }}" target="_blank" class="read-link" onclick="event.stopPropagation()">
-        Read article <i data-lucide="external-link" class="icon-sm"></i>
-      </a>
+      <span class="read-link">
+        Read article <i data-lucide="arrow-right" class="icon-sm"></i>
+      </span>
       <span class="badge badge-gold">
         <i data-lucide="trending-up" class="icon-sm"></i>
         Trending
@@ -169,4 +169,11 @@
   </div>
   {% endfor %}
 </div>
+
+<script>
+function goToArticle(title, summary, source, link, pubAgo) {
+  const params = new URLSearchParams({ title, summary, source, link, pub_ago: pubAgo });
+  window.location.href = '/news/article/?' + params.toString();
+}
+</script>
 {% endblock %}

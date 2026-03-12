@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block title %}{{ title|truncatechars:60 }}{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+    text-decoration: none;
+    margin-bottom: 32px;
+    transition: color var(--transition);
+  }
+  .back-link:hover { color: var(--gold); }
+
+  .article-hero {
+    padding: 48px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+
+  .article-source-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .article-title {
+    font-family: var(--font-serif);
+    font-size: clamp(24px, 4vw, 48px);
+    font-weight: 300;
+    line-height: 1.25;
+    color: var(--text);
+    margin-bottom: 18px;
+  }
+
+  .article-summary {
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.75;
+    max-width: 720px;
+  }
+
+  /* Why This Matters card */
+  .why-matters-card {
+    background: linear-gradient(135deg, rgba(201,169,110,0.06) 0%, rgba(201,169,110,0.02) 100%);
+    border: 1px solid rgba(201,169,110,0.25);
+    border-radius: var(--radius);
+    padding: 32px 36px;
+    margin-bottom: 36px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .why-matters-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--gold);
+  }
+
+  .why-matters-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+
+  .why-matters-text {
+    font-family: var(--font-serif);
+    font-size: clamp(16px, 2vw, 19px);
+    line-height: 1.8;
+    color: var(--text);
+    font-weight: 300;
+  }
+
+  .why-matters-footer {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(201,169,110,0.12);
+    font-size: 11px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Error card */
+  .error-card {
+    background: var(--surface);
+    border: 1px solid rgba(239,68,68,0.2);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 36px;
+    color: var(--text-muted);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* Action buttons */
+  .article-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 60px;
+  }
+
+  /* Source badge colors */
+  .src-tc { background:rgba(239,68,68,0.1); color:#f87171; border:1px solid rgba(239,68,68,0.2); }
+  .src-vb { background:rgba(59,130,246,0.1); color:#60a5fa; border:1px solid rgba(59,130,246,0.2); }
+  .src-tv { background:rgba(20,184,166,0.1); color:#2dd4bf; border:1px solid rgba(20,184,166,0.2); }
+  .src-at { background:rgba(251,146,60,0.1); color:#fb923c; border:1px solid rgba(251,146,60,0.2); }
+  .src-wd { background:rgba(139,92,246,0.1); color:#a78bfa; border:1px solid rgba(139,92,246,0.2); }
+
+  /* Mobile */
+  @media (max-width: 600px) {
+    .why-matters-card { padding: 24px 20px; }
+    .article-actions { flex-direction: column; }
+    .article-actions .btn { width: 100%; justify-content: center; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<a href="/news/" class="back-link">
+  <i data-lucide="arrow-left" class="icon-sm"></i>
+  Back to News
+</a>
+
+<div class="article-hero">
+  <div class="article-source-row">
+    <span class="badge
+      {% if source == 'TechCrunch' %}src-tc
+      {% elif source == 'VentureBeat' %}src-vb
+      {% elif source == 'The Verge' %}src-tv
+      {% elif source == 'Ars Technica' %}src-at
+      {% elif source == 'Wired' %}src-wd
+      {% else %}badge-surface{% endif %}">
+      <i data-lucide="newspaper" class="icon-sm"></i>
+      {{ source }}
+    </span>
+    {% if pub_ago %}
+    <span style="font-size:12px;color:var(--text-dim);">{{ pub_ago }} ago</span>
+    {% endif %}
+  </div>
+
+  <h1 class="article-title">{{ title }}</h1>
+  <p class="article-summary">{{ summary }}</p>
+</div>
+
+{% if why_it_matters %}
+<div class="why-matters-card">
+  <div class="why-matters-label">
+    <i data-lucide="sparkles" class="icon-sm"></i>
+    Why This Matters
+  </div>
+  <p class="why-matters-text">{{ why_it_matters }}</p>
+  <div class="why-matters-footer">
+    <i data-lucide="zap" class="icon-sm"></i>
+    Analysis powered by Gemini 2.5 Flash · Lumioly AI
+  </div>
+</div>
+{% else %}
+<div class="error-card">
+  <i data-lucide="alert-circle" class="icon-sm" style="color:#f87171;flex-shrink:0;"></i>
+  AI analysis could not load right now. Read the full article below or retry.
+</div>
+{% endif %}
+
+<div class="article-actions">
+  <a href="{{ request.get_full_path }}" class="btn btn-gold">
+    <i data-lucide="refresh-cw" class="icon-sm"></i>
+    Retry Analysis
+  </a>
+  <a href="{{ link }}" target="_blank" rel="noopener" class="btn btn-ghost">
+    <i data-lucide="external-link" class="icon-sm"></i>
+    Read Full Article
+  </a>
+  <a href="/news/" class="btn btn-ghost">
+    <i data-lucide="arrow-left" class="icon-sm"></i>
+    Back to News
+  </a>
+</div>
+
+{% endblock %}

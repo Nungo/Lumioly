@@ -245,3 +245,39 @@ def trigger_fetch_news_view(request, secret):
         return HttpResponse('News fetch triggered successfully.')
     except Exception as e:
         return HttpResponse(f'Error: {e}', status=500)
+    
+def article_detail_view(request):
+    """Article detail page with Gemini 'Why This Matters' summary."""
+    title   = request.GET.get('title', '')
+    summary = request.GET.get('summary', '')
+    source  = request.GET.get('source', '')
+    link    = request.GET.get('link', '#')
+    pub_ago = request.GET.get('pub_ago', '')
+
+    why_it_matters = None
+    error = None
+
+    if title:
+        try:
+            prompt = (
+                f"You are an AI analyst writing for developers and tech professionals. "
+                f"Given the article title and summary below, write a 'Why This Matters' "
+                f"explanation in exactly 3 clear, insightful sentences. Be specific — "
+                f"explain the real-world impact, who is affected, and why this development "
+                f"is significant right now. Do not be generic. Do not start with 'This article'.\n\n"
+                f"Title: {title}\n"
+                f"Summary: {summary}"
+            )
+            why_it_matters = get_explanation(prompt)
+        except Exception as e:
+            error = str(e)
+
+    return render(request, 'curator_app/article_detail.html', {
+        'title':          title,
+        'summary':        summary,
+        'source':         source,
+        'link':           link,
+        'pub_ago':        pub_ago,
+        'why_it_matters': why_it_matters,
+        'error':          error,
+    })
