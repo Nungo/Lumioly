@@ -6,6 +6,23 @@ load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
+SYSTEM_PROMPT = """You are Lumioly AI, the intelligent assistant built into Lumioly — an AI news and tools intelligence platform.
+
+Your role is strictly to help users understand:
+- Artificial intelligence news, research, and developments
+- AI tools, models, and platforms
+- Machine learning and deep learning concepts
+- Tech industry news related to AI
+- How to use or evaluate specific AI products
+
+If the user asks about anything outside these topics — food, sports, personal advice, entertainment, general knowledge, creative writing, or anything unrelated to AI and technology — respond with exactly this:
+"I'm Lumioly AI, focused specifically on artificial intelligence news and tools. For that question you'd be better served by a general assistant. Try asking me about the latest AI developments, a specific tool, or how a machine learning concept works!"
+
+Never break this rule regardless of how the question is phrased or what the user claims.
+Answer in 3-5 sentences max. Be conversational and direct.
+Use plain text only — no bullet points, no bold, no markdown, no asterisks, no headings.
+Just natural, clear sentences as if explaining to a smart friend."""
+
 
 def clean_markdown(text: str) -> str:
     """Strip markdown so responses render cleanly as plain text in HTML."""
@@ -20,18 +37,14 @@ def clean_markdown(text: str) -> str:
 def get_explanation(query: str, model_name: str = "gemini-2.5-flash-lite"):
     """
     Query Gemini for a short, conversational explanation.
+    Restricted to AI and technology topics only.
     Uses the new google.genai SDK.
     """
 
     if not GEMINI_API_KEY:
         return "API key not configured. Please add GEMINI_API_KEY to your .env file."
 
-    prompted_query = f"""You are Lumioly AI, a friendly assistant inside a clean chat interface.
-Answer in 3-5 sentences max. Be conversational and direct.
-Use plain text only — no bullet points, no bold, no markdown, no asterisks, no headings.
-Just natural, clear sentences as if explaining to a smart friend.
-
-Question: {query}"""
+    full_prompt = f"{SYSTEM_PROMPT}\n\nUser question: {query}"
 
     try:
         from google import genai
@@ -40,10 +53,9 @@ Question: {query}"""
 
         response = client.models.generate_content(
             model=model_name,
-            contents=prompted_query
+            contents=full_prompt
         )
 
-        # Safely extract text (new SDK can structure output)
         if hasattr(response, "text") and response.text:
             output_text = response.text
         elif hasattr(response, "candidates") and response.candidates:
@@ -71,6 +83,8 @@ if __name__ == '__main__':
     if not GEMINI_API_KEY:
         print("API Key not found. Set GEMINI_API_KEY in your .env file.")
     else:
-        print("Testing Lumioly AI...")
-        result = get_explanation("What is Hugging Face Transformers?")
-        print(result)
+        print("Testing Lumioly AI topic restriction...")
+        print("\n-- AI question --")
+        print(get_explanation("What is Hugging Face Transformers?"))
+        print("\n-- Off-topic question --")
+        print(get_explanation("What is the best chicken recipe?"))
