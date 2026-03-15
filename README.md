@@ -2,7 +2,7 @@
 
 > AI-powered news and tools intelligence platform — live articles, curated AI tools, and Gemini-powered "Why This Matters" analysis in one place.
 
-**Live Demo:** [https://web-production-2092.up.railway.app/]  
+**Live Site:** [https://web-production-2092.up.railway.app/]  
 **Built for:** Dev Season of Code (DSOC) 2026
 
 ---
@@ -138,12 +138,22 @@ python manage.py migrate && python manage.py seed_tools && python manage.py coll
 
 ## What I Built During DSOC 2026
 
-- Rebranded platform from Glintly to Lumioly
-- Built the article detail page from scratch
-- Implemented the **Why This Matters** Gemini AI analysis feature
-- Created full UX wireframes, UI screens, and design system in Figma
-- Deployed live on Railway
-
+- **Lumioly** — designed and built the full platform from my own design 
+  framework, including live RSS news aggregation from five major tech 
+  sources, the AI tools directory, Gemini-powered chat, and the dark 
+  luxury aesthetic across desktop and mobile
+- **Why This Matters** — the centrepiece feature: Gemini reads every 
+  article and generates a three-sentence analysis explaining its 
+  real-world significance to developers right now
+- **Topic restriction & prompt injection protection** — AI system prompt 
+  that keeps Lumioly strictly focused on AI and tech, with graceful 
+  redirects for off-topic queries
+- **QA & edge case testing** — boundary testing including off-topic 
+  queries, borderline questions, and prompt injection attempts
+- **UX/UI Design** — full Figma documentation with desktop and mobile 
+  screens, design system, and clickable prototype
+- **Full deployment** — live on Railway with PostgreSQL, WhiteNoise, 
+  and autonomous RSS pipeline
 ---
 
 ## Built by
