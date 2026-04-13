@@ -2,8 +2,8 @@
 
 > AI-powered news and tools intelligence platform — live articles, curated AI tools, and Gemini-powered "Why This Matters" analysis in one place.
 
-**Previous Live Site:** [https://web-production-2092.up.railway.app/]  (free trial ended)
-**New Site:** https://lumioly.onrender.com/ (now live on render)
+**Previous Live Site:** [https://web-production-2092.up.railway.app/]  (free trial ended) |
+**New Live Site:** https://lumioly.onrender.com/ (now live on render)
 **Built for:** Dev Season of Code (DSOC) 2026
 
 ---
