@@ -1,6 +1,6 @@
 """
 Django settings for ai_curator_project project.
-Configured for local development + Railway deployment.
+Configured for local development, Railway, and Render deployment.
 """
 import os
 from pathlib import Path
@@ -20,16 +20,25 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '.railway.app',
     '.up.railway.app',
+    '.onrender.com',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
     'https://*.up.railway.app',
+    'https://*.onrender.com',
 ]
+
 # Allow any custom domain added in Railway
 RAILWAY_STATIC_URL = os.environ.get('RAILWAY_STATIC_URL')
 if RAILWAY_STATIC_URL:
     ALLOWED_HOSTS.append(RAILWAY_STATIC_URL)
+
+# Allow any custom domain added in Render
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    CSRF_TRUSTED_ORIGINS.append('https://' + RENDER_EXTERNAL_HOSTNAME)
 
 # ── Application Definition ────────────────────────────────────────────────────
 INSTALLED_APPS = [
@@ -74,7 +83,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ai_curator_project.wsgi.application'
 
 # ── Database ──────────────────────────────────────────────────────────────────
-# Uses SQLite locally, PostgreSQL on Railway (via DATABASE_URL env var)
 DATABASES = {
     'default': dj_database_url.config(
         default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
